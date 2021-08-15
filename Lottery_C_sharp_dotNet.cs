@@ -4,16 +4,16 @@ using System.IO;
 
 namespace Lottery_Csharp_dotNet
 {
-    // List<int> numbers = new List<int>();
-    // numbers.Count
     class Program
     {
 
-        public const int LOTTERY_NUMBERS = 7;
-        public const int ADDITIONAL_NUMBERS = 4;
-        public const int MAX_NUMBER = 100;
+        const int LOTTERY_NUMBERS = 7;
+        const int LINE_LENGTH = 1 + LOTTERY_NUMBERS;
+        const int ADDITIONAL_NUMBERS = 4;
+        const int LOTTETY_LOWER_LIMIT = 1;
+        const int LOTTERY_UPPER_LIMIT = 100;
 
-        public class Lottery_Line
+        class Lottery_Line
         {
             public string name;
             public int[] numbers;
@@ -25,37 +25,43 @@ namespace Lottery_Csharp_dotNet
         static void read_lottery_lines(List<Lottery_Line> players)
         {
             Console.WriteLine("Enter lottery lines:");
-            while (true)
-            {
+            while (true) {
                 string line = Console.ReadLine();
-                if (line.Length != 0)
-                {
+                if (line.Length != 0) {
                     string[] lineSplited = line.Split(',');
-                    //Console.WriteLine(line);
-                    //Console.WriteLine(lineSplited[]);
-                    if (lineSplited.Length != LOTTERY_NUMBERS + 1)
-                    {
-                        Console.WriteLine("Wrong entry: Renter lottery line");
+                    //Name, lottery numbers
+                    if (lineSplited.Length != LINE_LENGTH) {
+                        Console.WriteLine("Wrong entry: Renter lottery line (name,nbr1,nbr2,nbr3,nbr4,nnbr5,nbr6,nbr7");
                         continue;
                     }
+                    // Create player  memory
                     Lottery_Line player = new Lottery_Line();
+                    // create number array memory
                     player.numbers = new int[LOTTERY_NUMBERS];
-                    for (int i = 0; i < lineSplited.Length; i++)
-                    {
-                        //Console.WriteLine(lineSplited[i]);
-                        if (i == 0)
-                        {
+                    bool valid_lottery_line = true;
+                    for (int i = 0; i < lineSplited.Length; i++) {
+                        if (i == 0) {
                             player.name = lineSplited[i];
                         }
-                        else
-                        {
-                            player.numbers[i - 1] = Convert.ToInt32(lineSplited[i]);
+                        else {
+                            int number = Convert.ToInt32(lineSplited[i]);
+                            if (number >= LOTTETY_LOWER_LIMIT && number <= LOTTERY_UPPER_LIMIT) {
+                                player.numbers[i - 1] = number;
+                            }
+                            else {
+                                Console.WriteLine($"{number} is out range: Renter lottery line number range shall be {LOTTETY_LOWER_LIMIT} to {LOTTERY_UPPER_LIMIT}");
+                                valid_lottery_line = false;
+                                break;
+                            }
+                            
                         }
                     }
-                    players.Add(player);
+
+                    if (valid_lottery_line) {
+                        players.Add(player);
+                    }
                 }
-                else
-                {
+                else {
                     break;
                 }
             };
@@ -65,12 +71,12 @@ namespace Lottery_Csharp_dotNet
             Random rnd = new Random();
             for (int i = 0; i < LOTTERY_NUMBERS; i++)
             {
-                int number = rnd.Next(1, MAX_NUMBER); // creates a number between 1 and 100.
+                int number = rnd.Next(LOTTETY_LOWER_LIMIT, LOTTERY_UPPER_LIMIT);
                 correct_line[i] = number;
             }
             for (int i = 0; i < ADDITIONAL_NUMBERS; i++)
             {
-                int number = rnd.Next(1, MAX_NUMBER); // creates a number between 1 and 100.
+                int number = rnd.Next(LOTTETY_LOWER_LIMIT, LOTTERY_UPPER_LIMIT);
                 additional_line[i] = number;
             }
             int month = rnd.Next(1, 100); // creates a number between 1 and 100.
@@ -115,10 +121,10 @@ namespace Lottery_Csharp_dotNet
         static void print_data(List<Lottery_Line> players, int[] correct_line, int[] additional_line)
         {
             Console.WriteLine($"Correct row {correct_line[0]}, {correct_line[1]}, {correct_line[2]}," +
-                $" {correct_line[3]}, {correct_line[4]}, {correct_line[5]}, {correct_line[6]}");
+                $" {correct_line[3]}, {correct_line[4]}, {correct_line[5]}, {correct_line[6]},");
 
             Console.WriteLine($"{additional_line[0]}, {additional_line[1]}, {additional_line[2]}, " +
-                $"{additional_line[2]},");
+                $"{additional_line[2]}");
 
             foreach (Lottery_Line player in players)
             {
@@ -142,7 +148,6 @@ namespace Lottery_Csharp_dotNet
                     Console.WriteLine(" zero");
                 }
 
-                //Console.WriteLine();
                 Console.WriteLine("additional number");
             }
         }
@@ -152,15 +157,14 @@ namespace Lottery_Csharp_dotNet
             // Set a variable to the Documents path.
             string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            string[] lines = { $"Correct row {correct_line[0]}, {correct_line[1]}, {correct_line[2]}," +
-                $" {correct_line[3]}, {correct_line[4]}, {correct_line[5]}, {correct_line[6]}",
-                $"{additional_line[0]}, {additional_line[1]}, {additional_line[2]}, " +
-                $"{additional_line[2]}," };
+            string text = $"Correct row {correct_line[0]}, {correct_line[1]}, {correct_line[2]}," +
+                $" {correct_line[3]}, {correct_line[4]}, {correct_line[5]}, {correct_line[6]}," + Environment.NewLine;
 
-            string text = lines[0] + Environment.NewLine;
-            // Write the text to a new file named "WriteFile.txt"
+            // Write the text to a new file named "Result.txt"
             File.WriteAllText(Path.Combine(docPath, "Result.txt"), text);
-            text = lines[1] + Environment.NewLine;
+
+            text = $"{additional_line[0]}, {additional_line[1]}, {additional_line[2]}, " +
+                $"{additional_line[2]}" + Environment.NewLine;
             // Append new lines of text to the file
             File.AppendAllText(Path.Combine(docPath, "Result.txt"), text);
 
